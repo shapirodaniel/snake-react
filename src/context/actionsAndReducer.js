@@ -1,4 +1,5 @@
 const CHANGE_DIRECTION = "CHANGE_DIRECTION";
+const CHANGE_SPEED = "CHANGE_SPEED";
 const MOVE = "MOVE";
 const EAT_APPLE = "EAT_APPLE";
 const EAT_SELF = "EAT_SELF";
@@ -16,6 +17,7 @@ const RESET_GAME = "RESET_GAME";
 
 export const actions = {
   CHANGE_DIRECTION,
+  CHANGE_SPEED,
   MOVE,
   EAT_APPLE,
   EAT_SELF,
@@ -125,7 +127,7 @@ export const initState = {
   snake: [...initSnake], // clone snake
   status: PREGAME,
   gameInterval: null,
-  speed: 50,
+  speed: 200,
 };
 
 export function gameReducer(state, { type, payload }) {
@@ -134,6 +136,9 @@ export function gameReducer(state, { type, payload }) {
       // prevent changing direction along same axis, ie left if currently moving right, down if currently moving up
       if (Math.abs(state.directionCode - payload) === 2) return state;
       return { ...state, directionCode: payload };
+
+    case CHANGE_SPEED:
+      return { ...state, speed: payload };
 
     case MOVE: {
       const [headRow, headCol] = state.snake[state.snake.length - 1];
@@ -163,11 +168,9 @@ export function gameReducer(state, { type, payload }) {
     }
 
     case OUT_OF_BOUNDS:
-      console.log("out of bounds");
       return { ...state, status: LOST };
 
     case EAT_SELF:
-      console.log("eat self");
       return { ...state, status: LOST };
 
     case RESET_GAME:

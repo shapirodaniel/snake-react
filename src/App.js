@@ -2,6 +2,7 @@ import React, { useContext, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { getNextCell } from "./context/actionsAndReducer";
 import { GameContext } from "./context/gameContext";
+import SelectSpeed from "./SelectSpeed";
 
 const Main = styled.main`
   height: 100vh;
@@ -33,6 +34,13 @@ const Column = styled.div`
   height: 20px;
   background-color: ${({ isSnake, isApple }) =>
     isSnake ? "green" : isApple ? "red" : ""};
+`;
+
+const Controls = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-around;
 `;
 
 const StartGameBtn = styled.button`
@@ -73,11 +81,10 @@ function App() {
 
   useEffect(() => {
     clearInterval(gameInterval.current);
+
     gameInterval.current = setTimeout(() => {
       let type;
       const nextCell = getNextCell(state);
-
-      console.log({ nextCell });
 
       switch (nextCell) {
         case -1:
@@ -106,6 +113,7 @@ function App() {
     if (state.status === actions.LOST) {
       clearInterval(gameInterval.current);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
@@ -131,28 +139,29 @@ function App() {
           </Row>
         ))}
       </Board>
-      <StartGameBtn
-        onClick={(e) => {
-          // handle btn state on global state, or local to this component?
-          e.target.disabled = true;
-          e.target.nextElementSibling.disabled = false;
-
-          dispatch({ type: actions.START_GAME });
-        }}
-      >
-        Start Game
-      </StartGameBtn>
-      <ResetGameBtn
-        onClick={(e) => {
-          clearInterval(gameInterval.current);
-          dispatch({ type: actions.RESET_GAME });
-
-          e.target.disabled = true;
-          e.target.previousElementSibling.disabled = false;
-        }}
-      >
-        Reset Game
-      </ResetGameBtn>
+      <Controls>
+        <StartGameBtn
+          onClick={(e) => {
+            // handle btn state on global state, or local to this component?
+            e.target.disabled = true;
+            e.target.nextElementSibling.disabled = false;
+            dispatch({ type: actions.START_GAME });
+          }}
+        >
+          Start Game
+        </StartGameBtn>
+        <ResetGameBtn
+          onClick={(e) => {
+            clearInterval(gameInterval.current);
+            dispatch({ type: actions.RESET_GAME });
+            e.target.disabled = true;
+            e.target.previousElementSibling.disabled = false;
+          }}
+        >
+          Reset Game
+        </ResetGameBtn>
+        {state.status === actions.PREGAME && <SelectSpeed />}
+      </Controls>
     </Main>
   );
 }
