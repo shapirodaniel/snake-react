@@ -54,8 +54,6 @@ function isSnake(cell, snake) {
 export function GameBoard() {
   const { state } = useContext(GameContext);
 
-  console.log(state);
-
   return state.board.map((row, rowIdx) => (
     <Row key={rowIdx} id={`row-${rowIdx}`}>
       {row.map((_, colIdx) => {
