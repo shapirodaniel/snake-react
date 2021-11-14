@@ -1,5 +1,5 @@
 import React, { useReducer } from "react";
-import { gameReducer, initState } from "./actionsAndReducer";
+import { gameReducer, initState, actions } from "./actionsAndReducer";
 
 export const GameContext = React.createContext();
 
@@ -9,6 +9,7 @@ export default function GameProvider({ children }) {
   const providerValue = {
     state,
     dispatch,
+    actions,
   };
 
   return (

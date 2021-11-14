@@ -1,5 +1,6 @@
-import React, { useContext } from "react";
+import React, { useContext, useRef, useEffect } from "react";
 import styled from "styled-components";
+import { gameReducer, getNextCell } from "./context/actionsAndReducer";
 import { GameContext } from "./context/gameContext";
 
 const Main = styled.main`
@@ -29,7 +30,6 @@ const Row = styled.div`
 const Column = styled.div`
   width: 20px;
   height: 20px;
-  border: 1px solid lightgrey;
   background-color: ${({ isSnake, isApple }) =>
     isSnake ? "green" : isApple ? "red" : ""};
 `;
@@ -41,25 +41,36 @@ const StartGameBtn = styled.button`
   margin-top: 1em;
 `;
 
-function App() {
-  const { state } = useContext(GameContext);
+const ResetGameBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1em;
+`;
 
-  /* 
-  
-    game square codes
-    
-    0: empty
-    1: snake
-    2: apple
-  
-  */
+function App() {
+  const gameInterval = useRef(null);
+  const { state, dispatch, actions } = useContext(GameContext);
+
+  useEffect(() => {
+    document.addEventListener("keydown", (e) => {
+      dispatch({ type: actions.CHANGE_DIRECTION, payload: e.keyCode });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Main>
       <Board>
         {state.board.map((row, rowIdx) => (
           <Row key={rowIdx}>
-            {row.map((col, colIdx) => {
+            {row.map((_, colIdx) => {
+              /*           
+                game square codes:
+                0: empty
+                1: snake
+                2: apple
+              */
               const isSnake = state.board[rowIdx][colIdx] === 1;
               const isApple = state.board[rowIdx][colIdx] === 2;
 
@@ -70,7 +81,52 @@ function App() {
           </Row>
         ))}
       </Board>
-      <StartGameBtn>Start Game</StartGameBtn>
+      <StartGameBtn
+        onClick={(e) => {
+          gameInterval.current = setInterval(() => {
+            let type;
+
+            const nextCell = getNextCell(state);
+
+            console.log({ nextCell });
+
+            switch (nextCell) {
+              case -1:
+                type = actions.OUT_OF_BOUNDS;
+                break;
+              case 1:
+                type = actions.EAT_SELF;
+                break;
+              case 2:
+                type = actions.EAT_APPLE;
+                break;
+              default:
+                type = actions.MOVE;
+            }
+
+            dispatch({ type });
+          }, state.speed);
+
+          // handle btn state on global state, or local to this component?
+          e.target.disabled = true;
+          e.target.nextElementSibling.disabled = false;
+
+          dispatch({ type: actions.START_GAME });
+        }}
+      >
+        Start Game
+      </StartGameBtn>
+      <ResetGameBtn
+        onClick={(e) => {
+          clearInterval(gameInterval.current);
+          dispatch({ type: actions.RESET_GAME });
+
+          e.target.disabled = true;
+          e.target.previousElementSibling.disabled = false;
+        }}
+      >
+        Reset Game
+      </ResetGameBtn>
     </Main>
   );
 }

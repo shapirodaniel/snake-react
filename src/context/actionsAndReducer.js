@@ -14,7 +14,23 @@ const PAUSE_GAME = "PAUSE_GAME";
 const RESUME_GAME = "RESUME_GAME";
 const RESET_GAME = "RESET_GAME";
 
-const directions = {
+export const actions = {
+  CHANGE_DIRECTION,
+  MOVE,
+  EAT_APPLE,
+  EAT_SELF,
+  OUT_OF_BOUNDS,
+  PREGAME,
+  PLAYING,
+  WON,
+  LOST,
+  START_GAME,
+  PAUSE_GAME,
+  RESUME_GAME,
+  RESET_GAME,
+};
+
+export const directions = {
   37: [0, -1], // left
   38: [-1, 0], // up
   39: [0, 1], // right
@@ -28,12 +44,51 @@ const initSnake = [
   [9, 7],
 ];
 
-function getNewBoard() {
+export function getNextCell(state) {
+  console.log({ snake: state.snake });
+
+  const [snakeRow, snakeCol] = state.snake[state.snake.length - 1];
+
+  console.log({ directions });
+
+  const [rowMod, colMod] = directions[state.directionCode];
+
+  const newRow = snakeRow + rowMod;
+  const newCol = snakeCol + colMod;
+
+  console.log({ newRow, newCol, apple: state.apple });
+
+  if (
+    newRow < 0 ||
+    newRow === state.board.length ||
+    newCol < 0 ||
+    newCol === state.board[0].length
+  ) {
+    return -1;
+  }
+
+  if (newRow === state.apple[0] && newCol === state.apple[1]) {
+    return 2;
+  }
+
+  if (
+    state.snake.some(
+      ([currSnakeRow, currSnakeCol]) =>
+        currSnakeRow === newRow && currSnakeCol === newCol
+    )
+  ) {
+    return 1;
+  }
+
+  return 0;
+}
+
+function getNewBoard(apple = initApple, snake = initSnake) {
   return new Array(20).fill(null).map((_, rowIdx) =>
     new Array(20).fill(0).map((_, colIdx) => {
-      const [appleRow, appleCol] = initApple;
+      const [appleRow, appleCol] = apple;
       const isApple = appleRow === rowIdx && appleCol === colIdx;
-      const isSnake = initSnake.some(
+      const isSnake = snake.some(
         ([snakeRow, snakeCol]) => snakeRow === rowIdx && snakeCol === colIdx
       );
 
@@ -52,11 +107,11 @@ function getNewBoard() {
 export const initState = {
   board: getNewBoard(),
   directionCode: 39,
-  apple: initApple,
-  snake: initSnake,
+  apple: [...initApple], // clone apple
+  snake: [...initSnake], // clone snake
   status: PREGAME,
   gameInterval: null,
-  speed: 500,
+  speed: 200,
 };
 
 export function gameReducer(state, { type, payload }) {
@@ -71,7 +126,10 @@ export function gameReducer(state, { type, payload }) {
       const [rowMod, colMod] = directions[state.directionCode];
       const newHead = [headRow + rowMod, headCol + colMod];
 
-      return { ...state, snake: [...state.snake.slice(1), newHead] };
+      const newSnake = [...state.snake.slice(1), newHead];
+      const newBoard = getNewBoard(state.apple, newSnake);
+
+      return { ...state, board: newBoard, snake: newSnake };
     }
 
     case EAT_APPLE: {
@@ -87,6 +145,9 @@ export function gameReducer(state, { type, payload }) {
 
     case RESET_GAME:
       return initState;
+
+    case START_GAME:
+      return { ...state, status: PLAYING };
 
     default:
       return state;
