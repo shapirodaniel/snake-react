@@ -25,6 +25,7 @@ const Row = styled.div`
 `;
 
 const Column = styled.div`
+  display: inline-flex;
   width: 20px;
   height: 20px;
   border: 1px solid lightgrey;
