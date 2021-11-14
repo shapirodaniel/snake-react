@@ -45,24 +45,19 @@ const initSnake = [
 ];
 
 export function getNextCell(state) {
-  console.log({ snake: state.snake });
-
   const [snakeRow, snakeCol] = state.snake[state.snake.length - 1];
-
-  console.log({ directions });
-
   const [rowMod, colMod] = directions[state.directionCode];
 
   const newRow = snakeRow + rowMod;
   const newCol = snakeCol + colMod;
 
-  console.log({ newRow, newCol, apple: state.apple });
+  console.log({ action: state.status });
 
   if (
     newRow < 0 ||
-    newRow === state.board.length ||
+    newRow >= state.board.length ||
     newCol < 0 ||
-    newCol === state.board[0].length
+    newCol >= state.board[0].length
   ) {
     return -1;
   }
@@ -130,7 +125,7 @@ export const initState = {
   snake: [...initSnake], // clone snake
   status: PREGAME,
   gameInterval: null,
-  speed: 200,
+  speed: 50,
 };
 
 export function gameReducer(state, { type, payload }) {
@@ -167,7 +162,12 @@ export function gameReducer(state, { type, payload }) {
       };
     }
 
-    case EAT_SELF || OUT_OF_BOUNDS:
+    case OUT_OF_BOUNDS:
+      console.log("out of bounds");
+      return { ...state, status: LOST };
+
+    case EAT_SELF:
+      console.log("eat self");
       return { ...state, status: LOST };
 
     case RESET_GAME:

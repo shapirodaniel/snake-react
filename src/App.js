@@ -19,6 +19,7 @@ const Board = styled.section`
   justify-content: center;
   height: 400px;
   width: 400px;
+  border: 1px solid black;
 `;
 
 const Row = styled.div`
@@ -74,7 +75,6 @@ function App() {
     clearInterval(gameInterval.current);
     gameInterval.current = setTimeout(() => {
       let type;
-
       const nextCell = getNextCell(state);
 
       console.log({ nextCell });
@@ -93,19 +93,24 @@ function App() {
           type = actions.MOVE;
       }
 
-      console.log({ type });
-
       dispatch({ type });
     }, state.speed);
   });
 
   // immediately disable gameInterval to allow start press to handle it
   useEffect(() => {
-    clearInterval(gameInterval.current);
-  }, []);
+    if (state.status === actions.PREGAME) {
+      clearInterval(gameInterval.current);
+    }
+
+    if (state.status === actions.LOST) {
+      clearInterval(gameInterval.current);
+    }
+  }, [state]);
 
   return (
     <Main>
+      {state.status === actions.LOST && <div>You lose :(</div>}
       <Board>
         {state.board.map((row, rowIdx) => (
           <Row key={rowIdx}>
