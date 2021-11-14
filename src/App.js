@@ -1,6 +1,6 @@
 import React, { useContext, useRef, useEffect } from "react";
 import styled from "styled-components";
-import { gameReducer, getNextCell } from "./context/actionsAndReducer";
+import { getNextCell } from "./context/actionsAndReducer";
 import { GameContext } from "./context/gameContext";
 
 const Main = styled.main`
@@ -54,6 +54,17 @@ function App() {
 
   useEffect(() => {
     document.addEventListener("keydown", (e) => {
+      if (
+        !(
+          e.keyCode === 37 ||
+          e.keyCode === 38 ||
+          e.keyCode === 39 ||
+          e.keyCode === 40
+        )
+      ) {
+        return;
+      }
+
       dispatch({ type: actions.CHANGE_DIRECTION, payload: e.keyCode });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,6 +92,8 @@ function App() {
         default:
           type = actions.MOVE;
       }
+
+      console.log({ type });
 
       dispatch({ type });
     }, state.speed);

@@ -67,7 +67,11 @@ export function getNextCell(state) {
     return -1;
   }
 
-  if (newRow === state.apple[0] && newCol === state.apple[1]) {
+  // apple may be undefined between renders
+  // short circuit catches typeerrors
+  const apple = state.apple || [null, null];
+
+  if (newRow === apple[0] && newCol === apple[1]) {
     return 2;
   }
 
@@ -81,6 +85,21 @@ export function getNextCell(state) {
   }
 
   return 0;
+}
+
+function chooseApple(state) {
+  let newAppleRow = Math.floor(Math.random() * state.board.length);
+  let newAppleCol = Math.floor(Math.random() * state.board[0].length);
+
+  while (
+    // eslint-disable-next-line no-loop-func
+    state.snake.some(([row, col]) => newAppleRow === row && newAppleCol === col)
+  ) {
+    newAppleRow = Math.floor(Math.random() * state.board.length);
+    newAppleCol = Math.floor(Math.random() * state.board[0].length);
+  }
+
+  return [newAppleRow, newAppleCol];
 }
 
 function getNewBoard(apple = initApple, snake = initSnake) {
@@ -137,7 +156,15 @@ export function gameReducer(state, { type, payload }) {
       const [rowMod, colMod] = directions[state.directionCode];
       const apple = [head[0] + rowMod, head[1] + colMod];
 
-      return { ...state, snake: [...state.snake, apple] };
+      const newApple = chooseApple(state);
+      const newSnake = [...state.snake, apple];
+
+      return {
+        ...state,
+        snake: newSnake,
+        board: getNewBoard(newApple, newSnake),
+        apple: newApple,
+      };
     }
 
     case EAT_SELF || OUT_OF_BOUNDS:
