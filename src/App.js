@@ -13,6 +13,7 @@ const Main = styled.main`
 
 const Board = styled.section`
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 400px;
@@ -20,12 +21,12 @@ const Board = styled.section`
 `;
 
 const Row = styled.div`
-  width: 400px;
+  display: inline-flex;
+  width: 100%;
   height: auto;
 `;
 
 const Column = styled.div`
-  display: inline-flex;
   width: 20px;
   height: 20px;
   border: 1px solid lightgrey;

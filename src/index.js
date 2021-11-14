@@ -32,29 +32,32 @@ const boardJSX = () => (
   </div>
 );
 
-ReactDOM.render(
-  <React.StrictMode>
-    <GameProvider>
-      {/* <App /> */}
-      <div style={{ boxSizing: "border-box", width: "100%", padding: "1em" }}>
-        {state.board.map((row, rowIdx) => (
-          <div key={rowIdx} style={{ width: "400px" }}>
-            {row.map((col, colIdx) => (
-              <div
-                key={colIdx}
-                style={{
-                  display: "inline-flex",
-                  width: "20px",
-                  height: "20px",
-                  padding: "1em",
-                }}
-              >
-                {state.board[rowIdx][colIdx]}
-              </div>
-            ))}
+const boardExperiment = () => (
+  <div style={{ boxSizing: "border-box", width: "100%", padding: "1em" }}>
+    {state.board.map((row, rowIdx) => (
+      <div key={rowIdx} style={{ width: "400px" }}>
+        {row.map((col, colIdx) => (
+          <div
+            key={colIdx}
+            style={{
+              display: "inline-flex",
+              width: "20px",
+              height: "20px",
+              padding: "1em",
+            }}
+          >
+            {state.board[rowIdx][colIdx]}
           </div>
         ))}
       </div>
+    ))}
+  </div>
+);
+
+ReactDOM.render(
+  <React.StrictMode>
+    <GameProvider>
+      <App />
     </GameProvider>
   </React.StrictMode>,
   document.getElementById("root")
