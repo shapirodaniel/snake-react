@@ -59,6 +59,38 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    clearInterval(gameInterval.current);
+    gameInterval.current = setTimeout(() => {
+      let type;
+
+      const nextCell = getNextCell(state);
+
+      console.log({ nextCell });
+
+      switch (nextCell) {
+        case -1:
+          type = actions.OUT_OF_BOUNDS;
+          break;
+        case 1:
+          type = actions.EAT_SELF;
+          break;
+        case 2:
+          type = actions.EAT_APPLE;
+          break;
+        default:
+          type = actions.MOVE;
+      }
+
+      dispatch({ type });
+    }, state.speed);
+  });
+
+  // immediately disable gameInterval to allow start press to handle it
+  useEffect(() => {
+    clearInterval(gameInterval.current);
+  }, []);
+
   return (
     <Main>
       <Board>
@@ -83,30 +115,6 @@ function App() {
       </Board>
       <StartGameBtn
         onClick={(e) => {
-          gameInterval.current = setInterval(() => {
-            let type;
-
-            const nextCell = getNextCell(state);
-
-            console.log({ nextCell });
-
-            switch (nextCell) {
-              case -1:
-                type = actions.OUT_OF_BOUNDS;
-                break;
-              case 1:
-                type = actions.EAT_SELF;
-                break;
-              case 2:
-                type = actions.EAT_APPLE;
-                break;
-              default:
-                type = actions.MOVE;
-            }
-
-            dispatch({ type });
-          }, state.speed);
-
           // handle btn state on global state, or local to this component?
           e.target.disabled = true;
           e.target.nextElementSibling.disabled = false;
