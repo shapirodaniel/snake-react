@@ -13,13 +13,15 @@ import styled from "styled-components";
 
 const Row = styled.div`
   width: 100%;
+  height: 100%;
 `;
 
-const Column = styled.span`
+const Column = styled.div`
   & {
     height: 20px;
     width: 20px;
     background-color: transparent;
+    border: 1px solid lightgrey;
   }
   &.apple {
     background-color: red;
@@ -37,12 +39,22 @@ function isApple(cell, apple) {
 
 function isSnake(cell, snake) {
   const [cellRow, cellCol] = cell;
-  const [snakeRow, snakeCol] = snake;
-  return cellRow === snakeRow && cellCol === snakeCol;
+
+  let result = false;
+
+  snake.forEach(([snakeRow, snakeCol]) => {
+    if (cellRow === snakeRow && cellCol === snakeCol) {
+      result = true;
+    }
+  });
+
+  return result;
 }
 
 export function GameBoard() {
   const { state } = useContext(GameContext);
+
+  console.log(state);
 
   return state.board.map((row, rowIdx) => (
     <Row key={rowIdx} id={`row-${rowIdx}`}>

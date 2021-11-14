@@ -19,25 +19,6 @@ function chooseRandomCell() {
   return Math.floor(Math.random() * 20);
 }
 
-function chooseApple(state) {
-  let randomRow = chooseRandomCell();
-  let randomCol = chooseRandomCell();
-
-  let snake = state ? state.snake : initSnake;
-
-  while (
-    // eslint-disable-next-line no-loop-func
-    snake.some(([row, col]) => {
-      return row === randomRow && col === randomCol;
-    })
-  ) {
-    randomRow = chooseRandomCell();
-    randomCol = chooseRandomCell();
-  }
-
-  state = { ...state, apple: [randomRow, randomCol] };
-}
-
 const initState = {
   board: new Array(20).fill(null).map(() => new Array(20).fill(null)),
   snake: initSnake,
@@ -46,7 +27,20 @@ const initState = {
   status: PREGAME,
   gameInterval: null,
   lastKeyPress: 39, // default to snake moving right
-  apple: chooseApple(),
+  apple: (() => {
+    let appleRow = chooseRandomCell();
+    let appleCol = chooseRandomCell();
+
+    while (
+      // eslint-disable-next-line no-loop-func
+      initSnake.some(([row, col]) => row === appleRow && col === appleCol)
+    ) {
+      appleRow = chooseRandomCell();
+      appleCol = chooseRandomCell();
+    }
+
+    return [appleRow, appleCol];
+  })(),
 };
 
 const directions = {
@@ -64,6 +58,23 @@ let state = cloneState();
 
 function endGame() {
   clearInterval(state.gameInterval);
+}
+
+function chooseApple() {
+  let randomRow = chooseRandomCell();
+  let randomCol = chooseRandomCell();
+
+  while (
+    // eslint-disable-next-line no-loop-func
+    state.snake.some(([row, col]) => {
+      return row === randomRow && col === randomCol;
+    })
+  ) {
+    randomRow = chooseRandomCell();
+    randomCol = chooseRandomCell();
+  }
+
+  state = { ...state, apple: [randomRow, randomCol] };
 }
 
 function updateSnake(direction) {
@@ -92,7 +103,7 @@ function renderGame() {
   }
 
   updateSnake(direction);
-  chooseApple(state);
+  chooseApple();
 }
 
 function updateSpeed(newSpeedInMilliseconds) {
