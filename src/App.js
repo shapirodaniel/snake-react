@@ -11,8 +11,15 @@ const Container = styled.section`
   width: 400px;
 `;
 
+const StartGameBtn = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1em;
+`;
+
 function App() {
-  const { state } = useContext(GameContext);
+  const { startGame } = useContext(GameContext);
 
   return (
     <main
@@ -20,6 +27,7 @@ function App() {
         width: "100%",
         height: "100%",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
       }}
@@ -27,6 +35,14 @@ function App() {
       <Container>
         <GameBoard />
       </Container>
+      <StartGameBtn
+        onClick={() => {
+          console.log("clicked");
+          startGame();
+        }}
+      >
+        Start Game
+      </StartGameBtn>
     </main>
   );
 }

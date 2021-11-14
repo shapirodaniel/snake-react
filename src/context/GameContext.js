@@ -25,7 +25,6 @@ const initState = {
   score: 0,
   speedInMilliseconds: 500,
   status: PREGAME,
-  gameInterval: null,
   lastKeyPress: 39, // default to snake moving right
   apple: (() => {
     let appleRow = chooseRandomCell();
@@ -55,9 +54,10 @@ function cloneState() {
 }
 
 let state = cloneState();
+let gameInterval;
 
 function endGame() {
-  clearInterval(state.gameInterval);
+  clearInterval(gameInterval);
 }
 
 function chooseApple() {
@@ -83,27 +83,27 @@ function updateSnake(direction) {
   const isApple = headRow === appleRow && headCol === appleCol;
 
   if (isApple) {
-    const newHead = [headRow + direction[0], headCol + direction[1]];
-    state = { ...state, snake: [...state.snake, newHead] };
+    state = { ...state, snake: [...state.snake, state.apple] };
+    chooseApple();
   } else {
-    const tail = state.snake[0];
-    state = { ...state, snake: [...state.snake.slice(1), tail] };
+    const newHead = [headRow + direction[0], headCol + direction[1]];
+    state = { ...state, snake: [...state.snake.slice(1), newHead] };
+
+    console.log("new snake is: ", state.snake);
   }
 }
 
 function renderGame() {
-  const direction = directions[state.lastKeyPress];
-
-  checkLoss(direction);
-  checkAllOccupied();
-
   if (state.status === LOST || state.status === WON) {
     endGame();
     return;
   }
 
+  const direction = directions[state.lastKeyPress];
+
   updateSnake(direction);
-  chooseApple();
+  checkLoss(direction);
+  checkAllOccupied();
 }
 
 function updateSpeed(newSpeedInMilliseconds) {
@@ -111,6 +111,8 @@ function updateSpeed(newSpeedInMilliseconds) {
 }
 
 function isOutOfBounds(selector, value) {
+  console.log({ selector, value });
+
   return (
     value < 0 ||
     (selector === ROW && value === state.snake.length) ||
@@ -123,13 +125,17 @@ function checkLoss(direction) {
   const nextRow = headRow + direction[0];
   const nextCol = headCol + direction[1];
 
+  console.log({ nextRow, nextCol });
+
   if (isOutOfBounds(ROW, nextRow) || isOutOfBounds(COLUMN, nextCol)) {
     state = { ...state, status: LOST };
   }
 }
 
 function checkAllOccupied() {
-  const allOccupied = state.board.every((coord) => !!coord);
+  const allOccupied = state.board.flat().every((coord) => !!coord);
+
+  console.log({ allOccupied });
 
   if (allOccupied) {
     state = { ...state, status: WON };
@@ -137,7 +143,12 @@ function checkAllOccupied() {
 }
 
 function startGame() {
-  state = { ...state, status: PLAYING };
+  state = {
+    ...state,
+    status: PLAYING,
+  };
+
+  gameInterval = setInterval(renderGame, state.speedInMilliseconds);
 }
 
 export default function GameProvider({ children }) {
@@ -146,7 +157,6 @@ export default function GameProvider({ children }) {
     updateSnake,
     startGame,
     updateSpeed,
-    renderGame,
   };
 
   return (
