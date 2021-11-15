@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useEffect } from "react";
+import React, { useContext, useRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { getNextCell } from "./context/actionsAndReducer";
 import { GameContext } from "./context/gameContext";
@@ -80,7 +80,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    clearInterval(gameInterval.current);
+    clearTimeout(gameInterval.current);
 
     gameInterval.current = setTimeout(() => {
       let type;
@@ -116,6 +116,18 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
+  const [disabled, setDisabled] = useState({
+    startGameBtn: false,
+    resetGameBtn: true,
+  });
+
+  function toggleDisabled() {
+    setDisabled({
+      startGameBtn: !disabled.startGameBtn,
+      resetGameBtn: !disabled.resetGameBtn,
+    });
+  }
+
   return (
     <Main>
       {state.status === actions.LOST && <div>You lose :(</div>}
@@ -141,21 +153,20 @@ function App() {
       </Board>
       <Controls>
         <StartGameBtn
-          onClick={(e) => {
-            // handle btn state on global state, or local to this component?
-            e.target.disabled = true;
-            e.target.nextElementSibling.disabled = false;
+          disabled={disabled.startGameBtn}
+          onClick={() => {
             dispatch({ type: actions.START_GAME });
+            toggleDisabled();
           }}
         >
           Start Game
         </StartGameBtn>
         <ResetGameBtn
+          disabled={disabled.resetGameBtn}
           onClick={(e) => {
             clearTimeout(gameInterval.current);
             dispatch({ type: actions.RESET_GAME });
-            e.target.disabled = true;
-            e.target.previousElementSibling.disabled = false;
+            toggleDisabled();
           }}
         >
           Reset Game
