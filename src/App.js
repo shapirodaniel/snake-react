@@ -107,11 +107,11 @@ function App() {
   // immediately disable gameInterval to allow start press to handle it
   useEffect(() => {
     if (state.status === actions.PREGAME) {
-      clearInterval(gameInterval.current);
+      clearTimeout(gameInterval.current);
     }
 
     if (state.status === actions.LOST) {
-      clearInterval(gameInterval.current);
+      clearTimeout(gameInterval.current);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
@@ -152,7 +152,7 @@ function App() {
         </StartGameBtn>
         <ResetGameBtn
           onClick={(e) => {
-            clearInterval(gameInterval.current);
+            clearTimeout(gameInterval.current);
             dispatch({ type: actions.RESET_GAME });
             e.target.disabled = true;
             e.target.previousElementSibling.disabled = false;
