@@ -116,18 +116,6 @@ function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
-  const [disabled, setDisabled] = useState({
-    startGameBtn: false,
-    resetGameBtn: true,
-  });
-
-  function toggleDisabled() {
-    setDisabled({
-      startGameBtn: !disabled.startGameBtn,
-      resetGameBtn: !disabled.resetGameBtn,
-    });
-  }
-
   return (
     <Main>
       {state.status === actions.LOST && <div>You lose :(</div>}
@@ -152,25 +140,25 @@ function App() {
         ))}
       </Board>
       <Controls>
-        <StartGameBtn
-          disabled={disabled.startGameBtn}
-          onClick={() => {
-            dispatch({ type: actions.START_GAME });
-            toggleDisabled();
-          }}
-        >
-          Start Game
-        </StartGameBtn>
-        <ResetGameBtn
-          disabled={disabled.resetGameBtn}
-          onClick={(e) => {
-            clearTimeout(gameInterval.current);
-            dispatch({ type: actions.RESET_GAME });
-            toggleDisabled();
-          }}
-        >
-          Reset Game
-        </ResetGameBtn>
+        {state.status === actions.PREGAME && (
+          <StartGameBtn
+            onClick={() => {
+              dispatch({ type: actions.START_GAME });
+            }}
+          >
+            Start Game
+          </StartGameBtn>
+        )}
+        {state.status !== actions.PREGAME && (
+          <ResetGameBtn
+            onClick={() => {
+              clearTimeout(gameInterval.current);
+              dispatch({ type: actions.RESET_GAME });
+            }}
+          >
+            Reset Game
+          </ResetGameBtn>
+        )}
         {state.status === actions.PREGAME && <SelectSpeed />}
       </Controls>
     </Main>
