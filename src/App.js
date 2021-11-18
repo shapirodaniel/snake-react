@@ -15,6 +15,10 @@ const Main = styled.main`
 
 const GameMessage = styled.div`
   margin: 1em;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
 `;
 
 const Board = styled.section`
@@ -108,7 +112,12 @@ function App() {
       case actions.PLAYING:
         return `Current Score: ${state.score}`;
       case actions.LOST:
-        return "You lose :(";
+        return (
+          <>
+            <span>You Lose :(</span>
+            <span>Score: {state.score}</span>
+          </>
+        );
       default:
         return "Snek";
     }

@@ -39,13 +39,6 @@ export const directions = {
   40: [1, 0], // down
 };
 
-const initApple = [12, 16];
-const initSnake = [
-  [9, 5],
-  [9, 6],
-  [9, 7],
-];
-
 export function getNextAction(state) {
   const [snakeRow, snakeCol] = state.snake[state.snake.length - 1];
   const [rowMod, colMod] = directions[state.directionCode];
@@ -98,6 +91,14 @@ function chooseApple(state) {
 
   return [newAppleRow, newAppleCol];
 }
+
+const initApple = [12, 16];
+
+const initSnake = [
+  [9, 5],
+  [9, 6],
+  [9, 7],
+];
 
 function getNewBoard(apple = initApple, snake = initSnake) {
   return new Array(20).fill(null).map((_, rowIdx) =>
