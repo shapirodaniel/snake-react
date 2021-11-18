@@ -46,7 +46,7 @@ const initSnake = [
   [9, 7],
 ];
 
-export function getNextCell(state) {
+export function getNextAction(state) {
   const [snakeRow, snakeCol] = state.snake[state.snake.length - 1];
   const [rowMod, colMod] = directions[state.directionCode];
 
@@ -61,7 +61,7 @@ export function getNextCell(state) {
     newCol < 0 ||
     newCol >= state.board[0].length
   ) {
-    return -1;
+    return actions.OUT_OF_BOUNDS;
   }
 
   // apple may be undefined between renders
@@ -69,7 +69,7 @@ export function getNextCell(state) {
   const apple = state.apple || [null, null];
 
   if (newRow === apple[0] && newCol === apple[1]) {
-    return 2;
+    return actions.EAT_APPLE;
   }
 
   if (
@@ -78,10 +78,10 @@ export function getNextCell(state) {
         currSnakeRow === newRow && currSnakeCol === newCol
     )
   ) {
-    return 1;
+    return actions.EAT_SELF;
   }
 
-  return 0;
+  return actions.MOVE;
 }
 
 function chooseApple(state) {
@@ -128,6 +128,7 @@ export const initState = {
   status: PREGAME,
   gameInterval: null,
   speed: 200,
+  score: 0,
 };
 
 export function gameReducer(state, { type, payload }) {
@@ -164,6 +165,7 @@ export function gameReducer(state, { type, payload }) {
         snake: newSnake,
         board: getNewBoard(newApple, newSnake),
         apple: newApple,
+        score: state.score + 1000,
       };
     }
 

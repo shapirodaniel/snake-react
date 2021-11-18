@@ -1,6 +1,6 @@
-import React, { useContext, useRef, useEffect, useState } from "react";
+import React, { useContext, useRef, useEffect } from "react";
 import styled from "styled-components";
-import { getNextCell } from "./context/actionsAndReducer";
+import { getNextAction } from "./context/actionsAndReducer";
 import { GameContext } from "./context/gameContext";
 import SelectSpeed from "./SelectSpeed";
 
@@ -11,6 +11,10 @@ const Main = styled.main`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+`;
+
+const GameMessage = styled.div`
+  margin: 1em;
 `;
 
 const Board = styled.section`
@@ -61,64 +65,58 @@ function App() {
   const gameInterval = useRef(null);
   const { state, dispatch, actions } = useContext(GameContext);
 
-  useEffect(() => {
-    document.addEventListener("keydown", (e) => {
-      if (
-        !(
-          e.keyCode === 37 ||
-          e.keyCode === 38 ||
-          e.keyCode === 39 ||
-          e.keyCode === 40
-        )
-      ) {
-        return;
-      }
+  function keydownListener(e) {
+    if (
+      !(
+        e.keyCode === 37 ||
+        e.keyCode === 38 ||
+        e.keyCode === 39 ||
+        e.keyCode === 40
+      )
+    ) {
+      return;
+    }
 
-      dispatch({ type: actions.CHANGE_DIRECTION, payload: e.keyCode });
-    });
+    dispatch({ type: actions.CHANGE_DIRECTION, payload: e.keyCode });
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", keydownListener);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     clearTimeout(gameInterval.current);
 
-    gameInterval.current = setTimeout(() => {
-      let type;
-      const nextCell = getNextCell(state);
-
-      switch (nextCell) {
-        case -1:
-          type = actions.OUT_OF_BOUNDS;
-          break;
-        case 1:
-          type = actions.EAT_SELF;
-          break;
-        case 2:
-          type = actions.EAT_APPLE;
-          break;
-        default:
-          type = actions.MOVE;
-      }
-
-      dispatch({ type });
-    }, state.speed);
+    if (state.status !== actions.LOST) {
+      gameInterval.current = setTimeout(() => {
+        dispatch({ type: getNextAction(state) });
+      }, state.speed);
+    }
   });
 
   // immediately disable gameInterval to allow start press to handle it
   useEffect(() => {
-    if (state.status === actions.PREGAME) {
-      clearTimeout(gameInterval.current);
-    }
-
-    if (state.status === actions.LOST) {
+    if (state.status === (actions.PREGAME || actions.LOST)) {
       clearTimeout(gameInterval.current);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
+  function getMessage(state) {
+    switch (state.status) {
+      case actions.PLAYING:
+        return `Current Score: ${state.score}`;
+      case actions.LOST:
+        return "You lose :(";
+      default:
+        return "Snek";
+    }
+  }
+
   return (
     <Main>
-      {state.status === actions.LOST && <div>You lose :(</div>}
+      <GameMessage>{getMessage(state)}</GameMessage>
       <Board>
         {state.board.map((row, rowIdx) => (
           <Row key={rowIdx}>
