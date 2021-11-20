@@ -49,20 +49,19 @@ const Controls = styled.div`
   width: 100%;
   align-items: center;
   justify-content: space-around;
+  padding: 1em 0;
 `;
 
 const StartGameBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 1em;
 `;
 
 const ResetGameBtn = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 1em;
 `;
 
 function App() {
