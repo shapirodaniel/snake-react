@@ -84,8 +84,8 @@ const initSnake = [
 ];
 
 function getNewBoard(apple = initApple, snake = initSnake) {
-  return new Array(20).fill(null).map((_, rowIdx) =>
-    new Array(20).fill(0).map((_, colIdx) => {
+  return new Array(40).fill(null).map((_, rowIdx) =>
+    new Array(40).fill(0).map((_, colIdx) => {
       const [appleRow, appleCol] = apple;
       const isApple = appleRow === rowIdx && appleCol === colIdx;
       const isSnake = snake.some(

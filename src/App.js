@@ -38,8 +38,8 @@ const Row = styled.div`
 `;
 
 const Column = styled.div`
-  width: 20px;
-  height: 20px;
+  width: 10px;
+  height: 10px;
   background-color: ${({ isSnake, isApple }) =>
     isSnake ? "green" : isApple ? "red" : ""};
 `;
