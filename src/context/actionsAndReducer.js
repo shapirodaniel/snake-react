@@ -1,35 +1,18 @@
-const CHANGE_DIRECTION = "CHANGE_DIRECTION";
-const CHANGE_SPEED = "CHANGE_SPEED";
-const MOVE = "MOVE";
-const EAT_APPLE = "EAT_APPLE";
-const EAT_SELF = "EAT_SELF";
-const OUT_OF_BOUNDS = "OUT_OF_BOUNDS";
-
-const PREGAME = "PREGAME";
-const PLAYING = "PLAYING";
-const WON = "WON";
-const LOST = "LOST";
-
-const START_GAME = "START_GAME";
-const PAUSE_GAME = "PAUSE_GAME";
-const RESUME_GAME = "RESUME_GAME";
-const RESET_GAME = "RESET_GAME";
-
 export const actions = {
-  CHANGE_DIRECTION,
-  CHANGE_SPEED,
-  MOVE,
-  EAT_APPLE,
-  EAT_SELF,
-  OUT_OF_BOUNDS,
-  PREGAME,
-  PLAYING,
-  WON,
-  LOST,
-  START_GAME,
-  PAUSE_GAME,
-  RESUME_GAME,
-  RESET_GAME,
+  CHANGE_DIRECTION: "CHANGE_DIRECTION",
+  CHANGE_SPEED: "CHANGE_SPEED",
+  MOVE: "MOVE",
+  EAT_APPLE: "EAT_APPLE",
+  EAT_SELF: "EAT_SELF",
+  OUT_OF_BOUNDS: "OUT_OF_BOUNDS",
+  PREGAME: "PREGAME",
+  PLAYING: "PLAYING",
+  WON: "WON",
+  LOST: "LOST",
+  START_GAME: "START_GAME",
+  PAUSE_GAME: "PAUSE_GAME",
+  RESUME_GAME: "RESUME_GAME",
+  RESET_GAME: "RESET_GAME",
 };
 
 export const directions = {
@@ -126,7 +109,7 @@ export const initState = {
   directionCode: 39,
   apple: [...initApple], // clone apple
   snake: [...initSnake], // clone snake
-  status: PREGAME,
+  status: actions.PREGAME,
   gameInterval: null,
   speed: 200,
   score: 0,
@@ -134,15 +117,15 @@ export const initState = {
 
 export function gameReducer(state, { type, payload }) {
   switch (type) {
-    case CHANGE_DIRECTION:
+    case actions.CHANGE_DIRECTION:
       // prevent changing direction along same axis, ie left if currently moving right, down if currently moving up
       if (Math.abs(state.directionCode - payload) === 2) return state;
       return { ...state, directionCode: payload };
 
-    case CHANGE_SPEED:
+    case actions.CHANGE_SPEED:
       return { ...state, speed: payload };
 
-    case MOVE: {
+    case actions.MOVE: {
       const [headRow, headCol] = state.snake[state.snake.length - 1];
       const [rowMod, colMod] = directions[state.directionCode];
       const newHead = [headRow + rowMod, headCol + colMod];
@@ -153,7 +136,7 @@ export function gameReducer(state, { type, payload }) {
       return { ...state, board: newBoard, snake: newSnake };
     }
 
-    case EAT_APPLE: {
+    case actions.EAT_APPLE: {
       const head = state.snake[state.snake.length - 1];
       const [rowMod, colMod] = directions[state.directionCode];
       const apple = [head[0] + rowMod, head[1] + colMod];
@@ -170,17 +153,17 @@ export function gameReducer(state, { type, payload }) {
       };
     }
 
-    case OUT_OF_BOUNDS:
-      return { ...state, status: LOST };
+    case actions.OUT_OF_BOUNDS:
+      return { ...state, status: actions.LOST };
 
-    case EAT_SELF:
-      return { ...state, status: LOST };
+    case actions.EAT_SELF:
+      return { ...state, status: actions.LOST };
 
-    case RESET_GAME:
+    case actions.RESET_GAME:
       return initState;
 
-    case START_GAME:
-      return { ...state, status: PLAYING };
+    case actions.START_GAME:
+      return { ...state, status: actions.PLAYING };
 
     default:
       return state;
