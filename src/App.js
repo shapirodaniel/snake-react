@@ -1,8 +1,9 @@
-import React, { useContext, useRef, useEffect } from "react";
+import React, { useContext, useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { getNextAction } from "./context/actionsAndReducer";
 import { GameContext } from "./context/gameContext";
 import SelectSpeed from "./SelectSpeed";
+import Leaderboard from "./Leaderboard";
 
 const Main = styled.main`
   height: 100vh;
@@ -91,7 +92,7 @@ function App() {
   useEffect(() => {
     clearTimeout(gameInterval.current);
 
-    if (state.status !== actions.LOST) {
+    if (state.status !== actions.LOST && state.status !== actions.PREGAME) {
       gameInterval.current = setTimeout(() => {
         dispatch({ type: getNextAction(state) });
       }, state.speed);
@@ -122,6 +123,43 @@ function App() {
     }
   }
 
+  const [leaderboard, setLeaderboard] = useState([]);
+
+  useEffect(() => {
+    const updateLeaderboard = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/leaderboard`);
+        const { leaderboard } = await response.json();
+        setLeaderboard(leaderboard);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    updateLeaderboard();
+  }, [state.status]);
+
+  useEffect(() => {
+    const postScore = async () => {
+      await fetch(`http://localhost:8080/api/newscore`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username || "anonymous",
+          score: state.score,
+        }),
+      });
+    };
+
+    if (state.status === actions.LOST && state.score > 0) {
+      postScore();
+    }
+  }, [state.status]);
+
+  const [username, setUsername] = useState("");
+  const updateUsername = (e) => setUsername(e.target.value);
+
   return (
     <Main>
       <GameMessage>{getMessage(state)}</GameMessage>
@@ -130,10 +168,10 @@ function App() {
           <Row key={rowIdx}>
             {row.map((_, colIdx) => {
               /*           
-                game square codes:
-                0: empty
-                1: snake
-                2: apple
+              game square codes:
+              0: empty
+              1: snake
+              2: apple
               */
               const isSnake = state.board[rowIdx][colIdx] === 1;
               const isApple = state.board[rowIdx][colIdx] === 2;
@@ -147,13 +185,21 @@ function App() {
       </Board>
       <Controls>
         {state.status === actions.PREGAME && (
-          <StartGameBtn
-            onClick={() => {
-              dispatch({ type: actions.START_GAME });
-            }}
-          >
-            Start Game
-          </StartGameBtn>
+          <>
+            <StartGameBtn
+              onClick={() => {
+                dispatch({ type: actions.START_GAME });
+              }}
+            >
+              Start Game
+            </StartGameBtn>
+            <input
+              name="username"
+              value={username}
+              onChange={updateUsername}
+              placeholder="Enter your username"
+            />
+          </>
         )}
         {state.status !== actions.PREGAME && (
           <ResetGameBtn
@@ -167,6 +213,7 @@ function App() {
         )}
         {state.status === actions.PREGAME && <SelectSpeed />}
       </Controls>
+      <Leaderboard leaderboard={leaderboard} />
     </Main>
   );
 }
